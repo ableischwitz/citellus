@@ -6,6 +6,7 @@
 #              and processes citellus output for combined issues via plugins
 #              that search for specific plugin and data
 #
+# Copyright (C) 2018 David Sastre Medina <d.sastre.medina@gmail.com>
 # Copyright (C) 2017, 2018 Robin Černín <cerninr@gmail.com>
 # Copyright (C) 2017, 2018 Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
 #
@@ -118,7 +119,7 @@ def parse_args():
     p.add_argument("--max-hosts",
                    default=10,
                    metavar="max-hosts",
-                   help=_("Define the number of maximum symultaneus hosts checks"))
+                   help=_("Define the number of maximum simultaneous hosts checks"))
 
     g = p.add_argument_group('Filtering options')
     g.add_argument("-q", "--quiet",
@@ -342,8 +343,9 @@ def autogroups(autodata):
                 value = item['sosreport'][host]['err']
             else:
                 value = ''
-            update = {name: value}
-            hostsdict[host].update(update)
+            if value != '':
+                update = {name: value}
+                hostsdict[host].update(update)
 
     # At this point we have a dict of dicts, being at first level the host with the output of the metadata, similar to:
     # print(hostsdict)={'host1': {'release': 'xxxx', 'UUID': 'YYYYY'}, 'host2': .... }

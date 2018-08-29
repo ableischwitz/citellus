@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Copyright (C) 2018 David Valle Delisle <dvd@redhat.com>
 # Copyright (C) 2018 Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
 
 
@@ -17,34 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# long_name: returns the role of the system (controller, compute, etc)
+# long_name: returns the role of the system (hosted-engine-host, rhevm, ovirt-host)
 # description: This plugin is used in various functions. It's just a metadata plugin.
 # priority: 0
 
 # Load common functions
 [ -f "${CITELLUS_BASE}/common-functions.sh" ] && . "${CITELLUS_BASE}/common-functions.sh"
 
-RELEASE=$(discover_osp_version)
-
-if [[ "${RELEASE}" != "0" ]]; then
-    ROLE="unknown"
-    if is_containerized;then
-        ROLE="container-host"
-    elif is_process ironic-conductor;then
-        ROLE="undercloud"
-    elif is_process nova-compute;then
-        ROLE="compute"
-    elif is_process pcsd;then
-        ROLE="controller"
-    elif is_process neutron-server;then
-        # So if neutron-server is running and there's no pcsd, then it's a network node
-        ROLE="network"
-    elif is_process ceilometer-collector;then
-        ROLE="telemetry"
-    fi
-else
-    echo "Couldn't determine OSP release, probably not osp system" >&2
-    exit ${RC_SKIPPED}
+ROLE="unknown"
+if is_lineinfile "^vmid" ${CITELLUS_ROOT}/etc/ovirt-hosted-engine/hosted-engine.conf; then
+    ROLE="hosted-engine-host"
+elif is_rpm ovirt-engine >/dev/null 2>&1; then
+    ROLE="rhevm"
+elif is_rpm qemu-kvm-rhev >/dev/null 2>&1; then
+    ROLE="ovirt-host"
 fi
 
 echo ${ROLE} >&2

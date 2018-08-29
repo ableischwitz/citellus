@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Copyright (C) 2018 David Valle Delisle <dvd@redhat.com>
 # Copyright (C) 2018 Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
 
 
@@ -17,12 +16,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# long_name: returns the role of the system (controller, compute, etc)
-# description: This plugin is used in various functions. It's just a metadata plugin.
-# priority: 0
+# long_name: reports running OSP role
+# description: reports running OSP rle
+# priority: 100
 
 # Load common functions
-[ -f "${CITELLUS_BASE}/common-functions.sh" ] && . "${CITELLUS_BASE}/common-functions.sh"
+[[ -f "${CITELLUS_BASE}/common-functions.sh" ]] && . "${CITELLUS_BASE}/common-functions.sh"
 
 RELEASE=$(discover_osp_version)
 

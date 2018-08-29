@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Copyright (C) 2018 David Sastre Medina <d.sastre.medina@gmail.com>
 # Copyright (C) 2018 Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
 
 
@@ -17,23 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# long_name: Provides output of lynis https://github.com/CISOfy/Lynis
-# description: Reports lynis output https://github.com/CISOfy/Lynis
+# long_name: reports running RHEL release
+# description: reports running RHEL release
 # priority: 100
 
 # Load common functions
 [[ -f "${CITELLUS_BASE}/common-functions.sh" ]] && . "${CITELLUS_BASE}/common-functions.sh"
 
-if ! which lynis >/dev/null 2>&1; then
-    echo "lynis (https://github.com/CISOfy/Lynis) support not found, exiting" >&2
-    exit ${RC_SKIPPED}
-fi
+is_required_file ${CITELLUS_ROOT}/etc/redhat-release
+cat ${CITELLUS_ROOT}/etc/redhat-release >&2
 
-if [[ "x$CITELLUS_LIVE" = "x0" ]];  then
-    echo $"Lynis is not supported for non-live operations" >&2
-    exit ${RC_SKIPPED}
-elif [[ "x$CITELLUS_LIVE" = "x1" ]];  then
-    lynis audit system >&2
-    exit ${RC_INFO}
-fi
 exit ${RC_OKAY}

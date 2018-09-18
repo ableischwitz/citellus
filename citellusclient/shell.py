@@ -1271,7 +1271,11 @@ def main():
             LOG.error(_("When not running in Live mode, snapshot path is required"))
             sys.exit(1)
     else:
-        CITELLUS_ROOT = ""
+        if options.sosreport:
+            # We specified Live but we defined path for access (like Container running against a host mapping)
+            CITELLUS_ROOT = os.path.abspath(options.sosreport)
+        else:
+            CITELLUS_ROOT = ""
 
     # Process Citellus extensions
     global extensions
@@ -1415,7 +1419,7 @@ def main():
         if options.live:
             print(_("mode: live"))
         else:
-            print(_("mode: fs snapshot %s" % CITELLUS_ROOT))
+            print(_("mode: fs snapshot: "), "%s" % CITELLUS_ROOT)
 
     global progress
     if options.luke:

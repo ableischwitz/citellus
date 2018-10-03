@@ -163,6 +163,26 @@ discover_rhrelease(){
     fi
 }
 
+discover_release(){
+    FILE="${CITELLUS_ROOT}/etc/os-release"
+    if [[ ! -f ${FILE} ]]; then
+        echo 0
+    else
+        VERSION=$(grep "^VERSION_ID=" ${FILE}|cut -d "=" -f 2-|tr -d '"'|cut -d "." -f 1)
+        echo ${VERSION}
+    fi
+}
+
+discover_osbrand(){
+    FILE="${CITELLUS_ROOT}/etc/os-release"
+    if [[ ! -f ${FILE} ]]; then
+        echo 0
+    else
+        BRAND=$(grep "^ID=" ${FILE}|cut -d "=" -f 2-|tr -d '"')
+        echo ${BRAND}
+    fi
+}
+
 # We do check on ID_LIKE so we can discard between dpkg or rpm access
 discover_os(){
     FILE="${CITELLUS_ROOT}/etc/os-release"
@@ -240,4 +260,21 @@ expand_and_remove_excludes(){
 
     done
     )|xargs echo
+}
+
+is_higher(){
+    # $1 string1
+    # $2 string2
+    LATEST=$(echo $1 $2|tr " " "\n"|sort -V|tail -1)
+
+    if [ "$(echo $1 $2|tr " " "\n"|sort -V|uniq|wc -l)" == "1" ];then
+        # Version and $2 are the same (only one line, so we're on latest)
+        return 0
+    fi
+
+    if [ "$1" != "$LATEST" ]; then
+        # "package $1 version $VERSION is lower than required ($2)."
+        return 1
+    fi
+    return 0
 }

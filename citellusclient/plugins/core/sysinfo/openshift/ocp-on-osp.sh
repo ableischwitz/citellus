@@ -2,7 +2,6 @@
 
 # Copyright (C) 2018 Pablo Iranzo Gómez <Pablo.Iranzo@gmail.com>
 
-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -16,35 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# long_name: reports running OSP role
-# description: reports running OSP rle
-# priority: 100
+# long_name: Detects OCP on OSP
+# description: Detects OCP on OSP
+# priority: 0
 
 # Load common functions
 [ -f "${CITELLUS_BASE}/common-functions.sh" ] && . "${CITELLUS_BASE}/common-functions.sh"
 
-RELEASE=$(discover_osp_version)
-
-if [[ "${RELEASE}" != "0" ]]; then
-    ROLE="unknown"
-    if is_containerized;then
-        ROLE="container-host"
-    elif is_process ironic-conductor;then
-        ROLE="undercloud"
-    elif is_process nova-compute;then
-        ROLE="compute"
-    elif is_process pcsd;then
-        ROLE="controller"
-    elif is_process neutron-server;then
-        # So if neutron-server is running and there's no pcsd, then it's a network node
-        ROLE="network"
-    elif is_process ceilometer-collector;then
-        ROLE="telemetry"
+if [[ "$(discover_ocp_version)" != 0 ]]; then
+    if [[ "$(virt_type)" == "OpenStack" ]]; then
+        echo "OCP running on top of OSP" >&2
+        exit ${RC_OKAY}
     fi
-else
-    echo "Couldn't determine OSP release, probably not osp system" >&2
-    exit ${RC_SKIPPED}
 fi
-
-echo ${ROLE} >&2
-exit ${RC_OKAY}
+echo $"Not running OCP or not on OSP" >&2
+exit ${RC_SKIPPED}

@@ -113,20 +113,28 @@ def run(data, quiet=False):  # do not edit this line
 
         for id in ids:
             if id in data:
-                new_results.append({'plugin_id': id, 'plugin': data[id]['plugin'].replace(os.path.join(citellus.citellusdir, 'plugins'), ''), 'err': data[id]['result']['err'].strip(), 'rc': data[id]['result']['rc']})
-                overallitems.append(data[id]['result']['rc'])
+                if 'sysinfo' in name and data[id]['result']['rc'] == skipped:
+                    # Do nothing as we don't want to show skipped in sysinfo
+                    pass
+                else:
+                    new_results.append({'plugin_id': id, 'plugin': data[id]['plugin'].replace(os.path.join(citellus.citellusdir, 'plugins'), ''), 'err': data[id]['result']['err'].strip(), 'rc': data[id]['result']['rc']})
+                    overallitems.append(data[id]['result']['rc'])
 
-        if failed in overallitems:
-            overall = failed
-        elif info in overallitems:
-            overall = info
-        elif skipped in overallitems:
-            overall = skipped
-        elif 'sysinfo' in name:
-            # If not skipped because not applicable, make it show up as info (as it's a briefing table)
-            overall = info
+        if 'sysinfo' in name:
+            if okay in overallitems or failed in overallitems or info in overallitems:
+                overall = info
+            else:
+                # No plugins matched, so skip it
+                overall = skipped
         else:
-            overall = okay
+            if failed in overallitems:
+                overall = failed
+            elif info in overallitems:
+                overall = info
+            elif skipped in overallitems:
+                overall = skipped
+            else:
+                overall = okay
 
         data[uid]['result']['err'] = json.dumps(new_results)
         data[uid]['components'] = ids
